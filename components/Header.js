@@ -1,6 +1,7 @@
 import React from 'react'
 import Image from "next/image";
-import { SearchIcon} from "@heroicons/react/outline";
+import { SearchIcon, PlusCircleIcon } from "@heroicons/react/outline";
+import { HomeIcon } from "@heroicons/react/solid";
 
 function Header() {
   return (
@@ -34,7 +35,19 @@ function Header() {
 
             {/* Middle */}
 
-            <h1>Right Side</h1>
+            <div className="flex space-x-4 items-center">
+                <HomeIcon 
+                className="hidden md:inline-flex  h-6 cursor-pointer hover:scale-125 transition-tranform duration-200 ease-out"
+                />
+                <PlusCircleIcon 
+                className="h-6 cursor-pointer hover:scale-125 transition-tranform duration-200 ease-out"
+                />
+                <img 
+                src="https://media.licdn.com/dms/image/C5603AQHnJdpn5M-X7w/profile-displayphoto-shrink_200_200/0/1625374860034?e=1684368000&v=beta&t=D2GpjrDqN8G_UcBtUJN__bsSKNiC-wpxLK4Z9CoJQyM"
+                alt="user-image"
+                className="h-10 rounded-full cursor-pointer" 
+                />
+            </div>
         </div>
   )
 }
