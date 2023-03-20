@@ -1,36 +1,31 @@
-import React from 'react'
+import { useEffect, useState } from "react";
 import Post from "./Post";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import { db } from "../firebase";
 
-function Posts() {
-    const posts =[
-        {
-        id: "1",
-        username: "codewithsahand",
-        userImg: "https://media.licdn.com/dms/image/C5603AQHnJdpn5M-X7w/profile-displayphoto-shrink_200_200/0/1625374860034?e=1684368000&v=beta&t=D2GpjrDqN8G_UcBtUJN__bsSKNiC-wpxLK4Z9CoJQyM",
-        img: "https://images.unsplash.com/photo-1679068476679-5057c5c5d256?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
-        caption: "Thanks for the picture"
-        },
-        {
-        id: "2",
-        username: "harizshah",
-        userImg: "https://media.licdn.com/dms/image/C5603AQHnJdpn5M-X7w/profile-displayphoto-shrink_200_200/0/1625374860034?e=1684368000&v=beta&t=D2GpjrDqN8G_UcBtUJN__bsSKNiC-wpxLK4Z9CoJQyM",
-        img: "https://images.unsplash.com/photo-1679068463336-bb196f54d2c9?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1yZWxhdGVkfDN8fHxlbnwwfHx8fA%3D%3D&auto=format&fit=crop&w=500&q=60",
-        caption: "Nice picture"
-        }]
+export default function Posts() {
+  const [posts, setPosts] = useState([]);
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      query(collection(db, "posts"), orderBy("timestamp", "desc")),
+      (snapshot) => {
+        setPosts(snapshot.docs);
+      }
+    );
+    return unsubscribe;
+  });
   return (
     <div>
-        {posts.map(post =>
-            <Post
-            key={post.id}
-            id={post.id}
-            username={post.username}
-            userImg={post.userImg}
-            img={post.img}
-            caption={post.caption}
-             />
-        )}
+      {posts.map((post) => (
+        <Post
+          key={post.id}
+          id={post.id}
+          username={post.data().username}
+          userImg={post.data().profileImg}
+          img={post.data().image}
+          caption={post.data().caption}
+        />
+      ))}
     </div>
-  )
+  );
 }
-
-export default Posts
