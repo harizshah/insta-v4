@@ -20,13 +20,14 @@ import {
   serverTimestamp,
   setDoc,
 } from "firebase/firestore";
-import { useSession } from "next-auth/react";
+import { useRecoilState } from "recoil";
+import { userState } from "../atom/userAtom";
 export default function Post({ img, userImg, caption, username, id }) {
-  const { data: session } = useSession();
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
   const [likes, setLikes] = useState([]);
   const [hasLiked, setHasLiked] = useState(false);
+  const [currentUser] = useRecoilState(userState)
   useEffect(() => {
     const unsubscribe = onSnapshot(
       query(
@@ -46,15 +47,15 @@ export default function Post({ img, userImg, caption, username, id }) {
   }, [db]);
   useEffect(() => {
     setHasLiked(
-      likes.findIndex((like) => like.id === session?.user.uid) !== -1
+      likes.findIndex((like) => like.id === currentUser?.uid) !== -1
     );
   }, [likes]);
   async function likePost() {
     if (hasLiked) {
-      await deleteDoc(doc(db, "posts", id, "likes", session.user.uid));
+      await deleteDoc(doc(db, "posts", id, "likes", currentUser?.uid));
     } else {
-      await setDoc(doc(db, "posts", id, "likes", session.user.uid), {
-        username: session.user.username,
+      await setDoc(doc(db, "posts", id, "likes", currentUser?.uid), {
+        username: currentUser?.username,
       });
     }
   }
@@ -64,8 +65,8 @@ export default function Post({ img, userImg, caption, username, id }) {
     setComment("");
     await addDoc(collection(db, "posts", id, "comments"), {
       comment: commentToSend,
-      username: session.user.username,
-      userImage: session.user.image,
+      username: currentUser?.username,
+      userImage: currentUser?.userImg,
       timestamp: serverTimestamp(),
     });
   }
@@ -89,7 +90,7 @@ export default function Post({ img, userImg, caption, username, id }) {
 
       {/* Post Buttons  */}
 
-      {session && (
+      {currentUser && (
         <div className="flex justify-between px-4 pt-4">
           <div className="flex space-x-4">
             {hasLiked ? (
@@ -110,28 +111,34 @@ export default function Post({ img, userImg, caption, username, id }) {
       {/* Post comments */}
 
       <p className="p-5 truncate">
+        {likes.length > 0 && (
+          <p className="font-bold mb-1">{likes.length} likes</p>
+        )}
         <span className="font-bold mr-2">{username}</span>
         {caption}
       </p>
       {comments.length > 0 && (
-        <div key={comment.data().id} className="mx-10 max-h-24 overflow-y-scroll scrollbar-none">
+        <div className="mx-10 max-h-24 overflow-y-scroll scrollbar-none">
           {comments.map((comment) => (
-  <div key={comment.id} className="flex items-center space-x-2 mb-2">
-    <img
-      className="h-7  rounded-full object-cover"
-      src={comment.data().userImage}
-      alt="user-image"
-    />
-    <p className="font-semibold">{comment.data().username}</p>
-    <p className="flex-1 truncate">{comment.data().comment}</p>
-    <Moment fromNow>{comment.data().timestamp?.toDate()}</Moment>
-  </div>
-))}
+            <div
+              key={comment.data().id}
+              className="flex items-center space-x-2 mb-2"
+            >
+              <img
+                className="h-7  rounded-full object-cover"
+                src={comment.data().userImage}
+                alt="user-image"
+              />
+              <p className="font-semibold">{comment.data().username}</p>
+              <p className="flex-1 truncate">{comment.data().comment}</p>
+              <Moment fromNow>{comment.data().timestamp?.toDate()}</Moment>
+            </div>
+          ))}
         </div>
       )}
 
       {/* Post input box */}
-      {session && (
+      {currentUser && (
         <form className="flex items-center p-4">
           <EmojiHappyIcon className="h-7" />
           <input
