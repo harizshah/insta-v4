@@ -20,7 +20,7 @@ function Suggestions() {
             <button className="text-gray-600 font-semibold">See All</button>
         </div>
         {suggestions.map((suggestion) => (
-            <div className="flex items-center justify-between mt-3">
+            <div key={suggestion.id} className="flex items-center justify-between mt-3">
                 <img 
                 src={`https://i.pravatar.cc/150?img=${Math.ceil(Math.random() * 70)}`}
                 className="h-10 rounded-full border p-[2px]"
